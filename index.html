@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>給普里雅</title>
+    <title>藍天與微風的終點站 - 我們的非正式告別</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -17,14 +17,6 @@
             user-select: none;
             -webkit-user-select: none;
         }
-        /* 雲朵漂浮動畫 */
-        @keyframes float-slow {
-            0% { transform: translateX(-10%) translateY(0px); }
-            50% { transform: translateX(10%) translateY(-10px); }
-            100% { transform: translateX(-10%) translateY(0px); }
-        }
-        .cloud-1 { animation: float-slow 15s ease-in-out infinite; }
-        .cloud-2 { animation: float-slow 22s ease-in-out infinite reverse; }
         
         /* 搖晃動畫 */
         @keyframes gentle-shake {
@@ -36,50 +28,37 @@
             animation: gentle-shake 0.5s ease-in-out infinite;
         }
 
-        /* 電影感超慢速漸變（1.5 秒） */
+        /* 頂級電影感超慢速漸變（2.5 秒，極具呼吸感與優雅感） */
         .cinematic-transition {
-            transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1), transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 2.5s cubic-bezier(0.16, 1, 0.3, 1), transform 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 背景模糊專用慢速轉場 */
+        #bg-image {
+            transition: opacity 1.5s ease-in-out, filter 2.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden relative p-4 md:p-6 text-slate-100">
 
-    <!-- 全螢幕背景圖片與微風藍遮罩 (漸變時間拉長至 1.5秒) -->
+    <!-- 全螢幕背景圖片與中性遮罩 (漸變時間拉長，預設綁定您的合照 IMG_4245.jpg) -->
     <div class="fixed inset-0 z-0 overflow-hidden">
-        <img id="bg-image" src="IMG_6766 2.JPG" alt="Memory Background" class="w-full h-full object-cover filter blur-[2.5px] brightness-75 scale-105 transition-all duration-[1500ms] ease-out opacity-0" onerror="handleBgError(this)">
-        <!-- 遮罩層：第一頁是明亮舒服的天空藍漸層，第二頁開始變成深邃微風藍 (1.5秒漸變) -->
+        <img id="bg-image" src="IMG_4245.jpg" alt="Memory Background" class="w-full h-full object-cover filter brightness-75 scale-105 opacity-0" onerror="handleBgError(this)">
+        <!-- 遮罩層：第一頁是明亮舒服的天空藍漸層，故事開啟後變為無藍色、純中性的微暗遮罩 (1.5秒漸變) -->
         <div id="bg-overlay" class="absolute inset-0 bg-gradient-to-b from-sky-200/50 via-sky-300/60 to-sky-400/80 transition-all duration-[1500ms] ease-out"></div>
     </div>
 
-    <!-- 背景裝飾雲朵 -->
-    <div class="absolute top-10 left-[10%] w-32 md:w-48 opacity-25 pointer-events-none cloud-1 z-10">
-        <svg viewBox="0 0 100 100" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 60 a20 20 0 0 1 20 -20 a25 25 0 0 1 45 -10 a20 20 0 0 1 15 20 a15 15 0 0 1 -15 15 L25 75 a15 15 0 0 1 -5 -15 Z" />
-        </svg>
-    </div>
-    <div class="absolute bottom-20 right-[10%] w-40 md:w-56 opacity-20 pointer-events-none cloud-2 z-10">
-        <svg viewBox="0 0 100 100" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 60 a20 20 0 0 1 20 -20 a25 25 0 0 1 45 -10 a20 20 0 0 1 15 20 a15 15 0 0 1 -15 15 L25 75 a15 15 0 0 1 -5 -15 Z" />
-        </svg>
-    </div>
-
-    <!-- 頂部進度條與控制列 (增加 fade-in 動畫) -->
-    <header id="top-header" class="w-full max-w-xl mx-auto mb-4 z-20 flex flex-col space-y-2 transition-opacity duration-[1500ms] opacity-0">
-        <div class="flex items-center justify-end">
-            <!-- 音效開關 -->
-            <button onclick="toggleMute()" id="mute-btn" class="w-10 h-10 rounded-full bg-white/90 hover:bg-white text-sky-600 flex items-center justify-center transition shadow-md border border-white/50" title="開關音效">
-                <i data-lucide="volume-2" class="w-5 h-5"></i>
-            </button>
-        </div>
+    <!-- 頂部進度條與控制列 (增加 fade-in 慢速動畫) -->
+    <header id="top-header" class="w-full max-w-xl mx-auto mb-4 z-20 flex flex-col space-y-2 transition-opacity duration-[2000ms] opacity-0">
         <!-- 進度條條身 -->
         <div class="w-full bg-sky-200/40 h-3 rounded-full overflow-hidden shadow-inner backdrop-blur-sm">
             <div id="progress-bar" class="bg-sky-400 h-full transition-all duration-500 shadow-lg" style="width: 10%;"></div>
         </div>
     </header>
 
-    <!-- 核心互動卡片容器 (採用客製化 cinematic-transition) -->
+    <!-- 核心互動卡片容器 (採用全新慢速 cinematic-transition) -->
     <main class="flex-1 flex items-center justify-center z-20 py-4 w-full">
-        <div id="game-card" class="w-full max-w-lg bg-white/95 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-2xl shadow-sky-950/40 border border-white/60 flex flex-col justify-between min-h-[480px] relative cinematic-transition text-slate-800 mx-auto opacity-0 translate-y-4">
+        <div id="game-card" class="w-full max-w-lg bg-white/95 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-2xl shadow-sky-950/40 border border-white/60 flex flex-col justify-between min-h-[480px] relative cinematic-transition text-slate-800 mx-auto opacity-0 translate-y-8">
             <!-- 卡片頂部操作區：回上一頁 -->
             <div class="flex items-center justify-between w-full mb-2 min-h-[28px] z-30">
                 <div id="back-btn-container"></div>
@@ -92,8 +71,8 @@
         </div>
     </main>
 
-    <!-- 頁尾宣告 (保留空容器以維持動畫，但徹底移除了宣告文字) -->
-    <footer id="bottom-footer" class="w-full text-center py-4 z-20 transition-opacity duration-[1500ms] opacity-0">
+    <!-- 頁尾宣告 (保留空容器以維持動畫，但無任何宣告文字) -->
+    <footer id="bottom-footer" class="w-full text-center py-4 z-20 transition-opacity duration-[2000ms] opacity-0">
     </footer>
 
     <!-- 全螢幕亮片 Canvas -->
@@ -103,18 +82,16 @@
     <script>
         // --- 狀態管理 ---
         let currentStage = 0;
-        let isMuted = false;
-        let audioCtx = null;
         let stageProgress = [false, false, false]; // 用於追蹤每頁3個Icon的點擊狀況
 
-        // --- 全站關卡與情感文案資料集 (完美還原所有的 hint 提示文字) ---
+        // --- 全站關卡與情感文案資料集 ---
         const stageData = [
             {
                 // 封面頁
                 isCover: true,
                 title: "Dear Priya",
                 desc: "總覺得好多話來不及跟妳說<br>所以我把想說的話都放在這裡了",
-                avatar: "IMG_6766 2.JPG",
+                avatar: "DSC09949.jpg",
                 hint: "點擊帥哥進入"
             },
             {
@@ -183,85 +160,12 @@
             }
         ];
 
-        // --- 音效控制器 (Web Audio API) ---
-        function playSound(type) {
-            if (isMuted) return;
-            try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                if (type === 'beep') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(440, audioCtx.currentTime); 
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.1);
-                } else if (type === 'success') {
-                    const now = audioCtx.currentTime;
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(523.25, now); 
-                    osc.frequency.setValueAtTime(659.25, now + 0.1); 
-                    osc.frequency.setValueAtTime(783.99, now + 0.2); 
-                    osc.frequency.setValueAtTime(1046.50, now + 0.3); 
-                    
-                    gain.gain.setValueAtTime(0.15, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-                    osc.start();
-                    osc.stop(now + 0.5);
-                } else if (type === 'pop') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15);
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.15);
-                } else if (type === 'cheers') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
-                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.3);
-                }
-            } catch (e) {
-                console.log("Audio Context waiting:", e);
-            }
-        }
-
-        function toggleMute() {
-            isMuted = !isMuted;
-            const btn = document.getElementById('mute-btn');
-            if (isMuted) {
-                btn.innerHTML = `<i data-lucide="volume-x" class="w-5 h-5"></i>`;
-                btn.classList.add('text-rose-500', 'bg-rose-50');
-            } else {
-                btn.innerHTML = `<i data-lucide="volume-2" class="w-5 h-5"></i>`;
-                btn.classList.remove('text-rose-500', 'bg-rose-50');
-                playSound('beep');
-            }
-            lucide.createIcons();
-        }
-
         // --- 電影級背景切換機制 ---
-        function updateBackground() {
+        function updateBackground(state) {
             const bgImg = document.getElementById('bg-image');
             const bgOverlay = document.getElementById('bg-overlay');
             
-            if (currentStage === 0) {
+            if (state === 'cover') {
                 // 第一面 (封面)：原本純淨的天空藍/淡藍色舒服漸層
                 if (bgImg) {
                     bgImg.classList.remove('opacity-100');
@@ -270,14 +174,25 @@
                 if (bgOverlay) {
                     bgOverlay.className = "absolute inset-0 bg-gradient-to-b from-sky-200/50 via-sky-300/60 to-sky-400/80 transition-all duration-[1500ms] ease-out";
                 }
-            } else {
-                // 第二面開始：高質感模糊合照 (IMG_4245.jpg) + 深邃微雨藍遮罩
+            } else if (state === 'clear') {
+                // 跳關初始狀態：背景照片 100% 清楚看見，無任何藍色遮罩，僅極微中性暗度以防高光刺眼
                 if (bgImg && bgImg.style.display !== 'none') {
                     bgImg.classList.remove('opacity-0');
                     bgImg.classList.add('opacity-100');
+                    bgImg.style.filter = 'blur(0px) brightness(92%)';
                 }
                 if (bgOverlay) {
-                    bgOverlay.className = "absolute inset-0 bg-gradient-to-b from-sky-900/65 via-sky-800/75 to-sky-950/90 backdrop-blur-[1px] transition-all duration-[1500ms] ease-out";
+                    // 純中性，絕無藍色
+                    bgOverlay.className = "absolute inset-0 bg-black/5 transition-all duration-[1500ms] ease-out";
+                }
+            } else if (state === 'blurry') {
+                // 1.5 秒後：背景照片緩緩增加一點點模糊度 (1.5px)，同時卡片緩緩升起
+                if (bgImg && bgImg.style.display !== 'none') {
+                    bgImg.style.filter = 'blur(1.5px) brightness(72%)';
+                }
+                if (bgOverlay) {
+                    // 稍加深中性暗度，烘托出白色卡片的絕佳對比度
+                    bgOverlay.className = "absolute inset-0 bg-black/20 transition-all duration-[2500ms] ease-out";
                 }
             }
         }
@@ -290,40 +205,25 @@
             const topHeader = document.getElementById('top-header');
             const bottomFooter = document.getElementById('bottom-footer');
             const card = document.getElementById('game-card');
-            
-            // 1. 立即切換背景圖片與遮罩顏色 (背景開始 1.5 秒轉場)
-            updateBackground();
 
             // 重置本頁點擊狀態
             stageProgress = [false, false, false];
 
-            // 2. 為了讓背景完全獨自停留，將卡片、頁首與頁尾徹底隱藏並向下移
-            card.classList.add('opacity-0', 'translate-y-8');
-            topHeader.classList.add('opacity-0');
-            bottomFooter.classList.add('opacity-0');
+            if (currentStage === 0) {
+                // 封面頁：直接渲染，背景是 cover 漸層色
+                updateBackground('cover');
+                
+                // 隱藏其他元件
+                card.classList.add('opacity-0', 'translate-y-8');
+                topHeader.classList.add('opacity-0');
+                bottomFooter.classList.add('opacity-0');
 
-            // 3. 設定延遲：第一頁(封面)不延遲快速開啟，第二頁起延遲 1.5 秒，讓背景圖獨佔 1.5 秒
-            const entranceDelay = (currentStage === 0) ? 200 : 1500;
-
-            setTimeout(() => {
-                // 更新頂部進度條
-                const percent = ((currentStage + 1) / stageData.length) * 100;
-                document.getElementById('progress-bar').style.width = `${percent}%`;
-
-                // 回上一頁按鈕：從第二面開始渲染
-                if (currentStage > 0) {
-                    backBtnContainer.innerHTML = `
-                        <button onclick="prevStep()" class="flex items-center space-x-1.5 text-sm font-bold text-sky-500 hover:text-sky-600 transition-all active:scale-95">
-                            <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                            <span>回上一頁</span>
-                        </button>
-                    `;
-                } else {
+                setTimeout(() => {
+                    // 更新頂部進度條
+                    const percent = ((currentStage + 1) / stageData.length) * 100;
+                    document.getElementById('progress-bar').style.width = `${percent}%`;
                     backBtnContainer.innerHTML = '';
-                }
 
-                if (data.isCover) {
-                    // 封面頁渲染 (保留最下方提示文字)
                     container.innerHTML = `
                         <div class="text-center space-y-4 mb-6 w-full">
                             <h2 class="text-4xl md:text-5xl font-black text-slate-800 tracking-tight leading-tight">${data.title}</h2>
@@ -340,126 +240,132 @@
                             <p class="text-lg md:text-xl text-sky-500 font-extrabold animate-pulse tracking-wide">${data.hint}</p>
                         </div>
                     `;
-                } else if (data.isFinal) {
-                    // 第十頁 (最後的信，保留最下方提示文字)
-                    container.innerHTML = `
-                        <div id="final-card-wrapper" class="w-full flex flex-col items-center justify-center text-center space-y-6">
-                            <!-- 純文字部分 -->
-                            <p class="text-lg md:text-xl text-slate-700 leading-relaxed font-bold tracking-wide text-left">${data.text}</p>
-                            
-                            <!-- 3個信封互動 -->
-                            <div id="icon-group" class="flex justify-center space-x-6 py-4">
-                                ${data.icons.map((icon, idx) => `
-                                    <button onclick="clickStoryIcon(this, ${idx}, '${data.effectType}')" class="w-16 h-16 rounded-full bg-sky-50 hover:bg-sky-100 border border-sky-200 shadow-md flex items-center justify-center text-3xl transition duration-300 transform hover:scale-110 active:scale-90 select-none">
-                                        ${icon}
-                                    </button>
-                                `).join('')}
-                            </div>
-                            
-                            <p id="icon-hint" class="text-sm md:text-base text-sky-500 font-extrabold animate-pulse tracking-wide">${data.hint}</p>
-                            
-                            <!-- 隱藏的信件內容，點擊信封後展開 -->
-                            <div id="letter-content" class="hidden bg-slate-50 border border-slate-100 rounded-2xl p-6 text-base text-slate-700 leading-relaxed text-left space-y-4 shadow-inner max-h-[280px] overflow-y-auto w-full transition-all duration-500 transform translate-y-4 opacity-0">
-                                <p class="font-bold text-sky-600 text-lg md:text-xl">嗨，Priya：</p>
-                                <p>
-                                    謝謝妳耐心地點到最後！希望剛剛這些有點蠢的小互動有讓妳笑一下。
-                                </p>
-                                <p>
-                                    以前我們有很多心結和話沒能好好講開，但現在想想，也許那些有點「沒說完的遺憾」，才是曖昧過程中最令人難忘的樣子。謝謝妳曾經願意走向我，也謝謝妳帶給我的所有美好回憶。
-                                </p>
-                                <p>
-                                    這個網站是我最後、最輕鬆有趣的道別信。祝妳未來的日子裡天天開心，大步往前走，遇到能毫無保留向妳飛奔過去的人。
-                                </p>
-                                <p class="text-right font-bold text-sky-600 mt-5">—— 優雅退場的我 筆 ✨</p>
-                                <div class="pt-5 border-t border-slate-200 flex justify-center">
-                                    <button onclick="finalConfetti()" class="bg-gradient-to-r from-sky-500 to-indigo-500 text-white text-base md:text-lg px-8 py-3 rounded-full font-black shadow hover:shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center space-x-2">
-                                        <span>👋 點此揮手告別（灑花！）</span>
-                                    </button>
+
+                    // 漸變顯示
+                    card.classList.remove('opacity-0', 'translate-y-8');
+                    topHeader.classList.remove('opacity-0');
+                    bottomFooter.classList.remove('opacity-0');
+                    lucide.createIcons();
+                }, 200);
+
+            } else {
+                // 關卡頁面：
+                // 1. 立即讓背景轉為清晰合照 (IMG_4245.jpg)，絕無藍色遮罩
+                updateBackground('clear');
+
+                // 2. 將文字卡片、進度條、頁尾完全隱藏並略向下移，創造乾淨獨占的背景觀賞期
+                card.classList.add('opacity-0', 'translate-y-8');
+                topHeader.classList.add('opacity-0');
+                bottomFooter.classList.add('opacity-0');
+
+                // 3. 背景照片維持清晰，停留 1.5 秒
+                setTimeout(() => {
+                    // 4. 照片停留結束！照片開始徐徐地、柔和地微Blur(1.5px)，遮罩變暗以增強對比
+                    updateBackground('blurry');
+
+                    // 5. 更新卡片文字與互動 Icon 的 HTML
+                    const percent = ((currentStage + 1) / stageData.length) * 100;
+                    document.getElementById('progress-bar').style.width = `${percent}%`;
+
+                    backBtnContainer.innerHTML = `
+                        <button onclick="prevStep()" class="flex items-center space-x-1.5 text-sm font-bold text-sky-500 hover:text-sky-600 transition-all active:scale-95">
+                            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            <span>回上一頁</span>
+                        </button>
+                    `;
+
+                    if (data.isFinal) {
+                        // 最後一關
+                        container.innerHTML = `
+                            <div id="final-card-wrapper" class="w-full flex flex-col items-center justify-center text-center space-y-6">
+                                <p class="text-lg md:text-xl text-slate-700 leading-relaxed font-bold tracking-wide text-left">${data.text}</p>
+                                <div id="icon-group" class="flex justify-center space-x-6 py-4">
+                                    ${data.icons.map((icon, idx) => `
+                                        <button onclick="clickStoryIcon(this, ${idx}, '${data.effectType}')" class="w-16 h-16 rounded-full bg-sky-50 hover:bg-sky-100 border border-sky-200 shadow-md flex items-center justify-center text-3xl transition duration-300 transform hover:scale-110 active:scale-90 select-none">
+                                            ${icon}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <p id="icon-hint" class="text-sm md:text-base text-sky-500 font-extrabold animate-pulse tracking-wide">${data.hint}</p>
+                                
+                                <div id="letter-content" class="hidden bg-slate-50 border border-slate-100 rounded-2xl p-6 text-base text-slate-700 leading-relaxed text-left space-y-4 shadow-inner max-h-[280px] overflow-y-auto w-full transition-all duration-500 transform translate-y-4 opacity-0">
+                                    <p class="font-bold text-sky-600 text-lg md:text-xl">嗨，Priya：</p>
+                                    <p>謝謝妳耐心地點到最後！希望剛剛這些有點蠢的小互動有讓妳笑一下。</p>
+                                    <p>以前我們有很多心結和話沒能好好講開，但現在想想，也許那些有點「沒說完的遺憾」，才是曖昧過程中最令人難忘的樣子。謝謝妳曾經願意走向我，也謝謝妳帶給我的所有美好回憶。</p>
+                                    <p>這個網站是我最後、最輕鬆有趣的道別信。祝妳未來的日子裡天天開心，大步往前走，遇到能毫無保留向妳飛奔過去的人。</p>
+                                    <p class="text-right font-bold text-sky-600 mt-5">—— 優雅退場的我 筆 ✨</p>
+                                    <div class="pt-5 border-t border-slate-200 flex justify-center">
+                                        <button onclick="finalConfetti()" class="bg-gradient-to-r from-sky-500 to-indigo-500 text-white text-base md:text-lg px-8 py-3 rounded-full font-black shadow hover:shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center space-x-2">
+                                            <span>👋 點此揮手告別（灑花！）</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                } else {
-                    // 第二面到第九面（保留最下方提示文字）
-                    container.innerHTML = `
-                        <div class="w-full flex flex-col items-center justify-center text-center space-y-8 py-4">
-                            <!-- 中間只有純文字，無標題 -->
-                            <p class="text-lg md:text-xl text-slate-700 leading-relaxed font-bold tracking-wide text-left">${data.text}</p>
-                            
-                            <!-- 三個互動 Icon -->
-                            <div class="flex justify-center space-x-6 py-2">
-                                ${data.icons.map((icon, idx) => `
-                                    <button onclick="clickStoryIcon(this, ${idx}, '${data.effectType}')" class="w-16 h-16 rounded-full bg-sky-50 hover:bg-sky-100 border border-sky-200 shadow-md flex items-center justify-center text-3xl transition duration-300 transform hover:scale-110 active:scale-90 select-none">
-                                        ${icon}
-                                    </button>
-                                `).join('')}
+                        `;
+                    } else {
+                        // 故事頁模板
+                        container.innerHTML = `
+                            <div class="w-full flex flex-col items-center justify-center text-center space-y-8 py-4">
+                                <p class="text-lg md:text-xl text-slate-700 leading-relaxed font-bold tracking-wide text-left">${data.text}</p>
+                                <div class="flex justify-center space-x-6 py-2">
+                                    ${data.icons.map((icon, idx) => `
+                                        <button onclick="clickStoryIcon(this, ${idx}, '${data.effectType}')" class="w-16 h-16 rounded-full bg-sky-50 hover:bg-sky-100 border border-sky-200 shadow-md flex items-center justify-center text-3xl transition duration-300 transform hover:scale-110 active:scale-90 select-none">
+                                            ${icon}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <p class="text-sm md:text-base text-sky-500 font-extrabold animate-pulse tracking-wide">${data.hint}</p>
                             </div>
-                            
-                            <!-- 底部提示 -->
-                            <p class="text-sm md:text-base text-sky-500 font-extrabold animate-pulse tracking-wide">${data.hint}</p>
-                        </div>
-                    `;
-                }
+                        `;
+                    }
 
-                // 4. 以電影感慢速（1.5秒漸變）將卡片緩緩升起，並讓進度條與頁尾淡入
-                card.classList.remove('opacity-0', 'translate-y-8');
-                topHeader.classList.remove('opacity-0');
-                bottomFooter.classList.remove('opacity-0');
-                
-                lucide.createIcons();
-            }, entranceDelay);
+                    // 6. 其他元素（卡片、進度條、頁尾）以 2.5 秒的超慢過渡緩慢、高雅地淡入
+                    card.classList.remove('opacity-0', 'translate-y-8');
+                    topHeader.classList.remove('opacity-0');
+                    bottomFooter.classList.remove('opacity-0');
+                    lucide.createIcons();
+                }, 1500); // 1.5秒背景獨佔停留
+            }
         }
 
-        // --- 點擊 Icon 互動與自動下一頁邏輯 ---
+        // --- 點擊 Icon 互動與自動下一頁邏輯 (音效功能完全關閉) ---
         function clickStoryIcon(element, index, effectType) {
             if (stageProgress[index]) return; // 避免重複點擊
             
             stageProgress[index] = true;
             
-            // 根據不同類型播放對應音效與點擊變形特效
+            // 點擊物理特效保留
             if (effectType === 'squish') {
-                playSound('pop');
                 element.innerHTML = "💥";
                 element.className = "w-16 h-16 rounded-full bg-amber-50 border border-amber-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-90 rotate-12 opacity-85 select-none pointer-events-none";
             } else if (effectType === 'zap') {
-                playSound('pop');
                 element.innerHTML = "✨";
                 element.className = "w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-90 -rotate-12 opacity-85 select-none pointer-events-none";
             } else if (effectType === 'pop') {
-                playSound('pop');
                 element.innerHTML = "💥";
                 element.className = "w-16 h-16 rounded-full bg-rose-50 border border-rose-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-50 opacity-0 select-none pointer-events-none";
             } else if (effectType === 'drink') {
-                playSound('pop');
                 element.innerHTML = "💨";
                 element.className = "w-16 h-16 rounded-full bg-slate-50 border border-slate-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-95 opacity-50 select-none pointer-events-none";
             } else if (effectType === 'unlock') {
-                playSound('cheers');
                 element.innerHTML = "🔓";
                 element.className = "w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-100 rotate-45 opacity-90 select-none pointer-events-none";
             } else if (effectType === 'openGift') {
-                playSound('cheers');
                 element.innerHTML = "🎉";
                 element.className = "w-16 h-16 rounded-full bg-yellow-50 border border-yellow-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-110 opacity-100 select-none pointer-events-none animate-bounce";
             } else if (effectType === 'sizzle') {
-                playSound('pop');
                 element.innerHTML = "💖";
                 element.className = "w-16 h-16 rounded-full bg-rose-50 border border-rose-100 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-100 opacity-95 select-none pointer-events-none";
             } else if (effectType === 'cheersClink') {
-                playSound('cheers');
                 element.innerHTML = "🥂";
                 element.className = "w-16 h-16 rounded-full bg-amber-50 border border-amber-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-105 rotate-12 opacity-95 select-none pointer-events-none";
             } else if (effectType === 'openEnvelope') {
-                playSound('pop');
                 element.innerHTML = "✉️";
                 element.className = "w-16 h-16 rounded-full bg-sky-50 border border-sky-100 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-100 opacity-90 select-none pointer-events-none";
             }
 
             // 檢查三個是否都踩完
             if (stageProgress.every(status => status === true)) {
-                playSound('success');
-                
-                // 最後一關不自動跳，而是展開信封
                 if (currentStage === stageData.length - 1) {
                     setTimeout(() => {
                         const iconGroup = document.getElementById('icon-group');
@@ -478,7 +384,7 @@
                         }
                     }, 800);
                 } else {
-                    // 一般關卡踩完 1.2 秒後，卡片自動淡出並前往下一頁
+                    // 一般關卡自動淡出前往下一頁
                     setTimeout(() => {
                         nextStep();
                     }, 1200);
@@ -486,13 +392,12 @@
             }
         }
 
-        // [封面頁] 點擊帥哥進入
+        // [封面頁] 點擊進入
         function triggerPlane() {
-            playSound('pop');
             const btn = document.getElementById('plane-btn');
             btn.classList.add('scale-95', 'rotate-6', 'opacity-90');
             
-            // 先讓第一面卡片慢速淡出
+            // 先讓封面卡片慢速淡出
             const card = document.getElementById('game-card');
             card.classList.add('opacity-0', 'translate-y-8');
             
@@ -503,7 +408,6 @@
 
         function nextStep() {
             if (currentStage < stageData.length - 1) {
-                // 卡片與周邊元素先慢速淡出，隨後進行關卡轉換
                 const card = document.getElementById('game-card');
                 const topHeader = document.getElementById('top-header');
                 const bottomFooter = document.getElementById('bottom-footer');
@@ -515,7 +419,7 @@
                 setTimeout(() => {
                     currentStage++;
                     renderStage();
-                }, 1200); // 等待淡出動畫完全結束後再轉場背景
+                }, 1200); // 卡片完全淡出後，再進行背景與頁面轉換
             }
         }
 
@@ -526,7 +430,6 @@
 
         function prevStep() {
             if (currentStage > 0) {
-                playSound('pop');
                 const card = document.getElementById('game-card');
                 const topHeader = document.getElementById('top-header');
                 const bottomFooter = document.getElementById('bottom-footer');
@@ -542,21 +445,18 @@
             }
         }
 
-        // --- 錯誤處理 (防阻擋安全機制) ---
+        // --- 錯誤處理 ---
         function handleBgError(img) {
             console.log("本地背景圖 [IMG_4245.jpg] 暫未載入。請下載 HTML 並與照片放在同一資料夾中執行。");
             img.style.display = 'none';
         }
 
-        // 本地找不到頭像時優雅隱藏，完全不載入任何外界路人照片
         function handleAvatarError(img) {
-            console.log("本地頭像 [DSC09949.jpg] 暫未載入。請下載 HTML 並與照片放在同一資料夾中執行。");
             img.style.display = 'none';
         }
 
-        // --- 揮手灑花彩帶效果 ---
+        // 揮手灑花彩帶效果
         function finalConfetti() {
-            playSound('success');
             const canvas = document.getElementById('confetti-canvas');
             canvas.classList.remove('hidden');
             
