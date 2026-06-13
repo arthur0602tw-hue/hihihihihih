@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>藍天與微風的終點站 - 我們的非正式告別</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Comfortaa', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(180deg, #e0f2fe 0%, #bae6fd 100%);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        /* 雲朵漂浮動畫 */
+        @keyframes float-slow {
+            0% { transform: translateX(-10%) translateY(0px); }
+            50% { transform: translateX(10%) translateY(-10px); }
+            100% { transform: translateX(-10%) translateY(0px); }
+        }
+        .cloud-1 { animation: float-slow 15s ease-in-out infinite; }
+        .cloud-2 { animation: float-slow 22s ease-in-out infinite reverse; }
+        
+        /* 搖晃動畫 */
+        @keyframes gentle-shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+        .shake-hover:hover {
+            animation: gentle-shake 0.5s ease-in-out infinite;
+        }
+
+        /* 電影感超慢速漸變（1.5 秒） */
+        .cinematic-transition {
+            transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1), transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden relative p-4 md:p-6 text-slate-100">
+
+    <!-- 全螢幕背景圖片與微風藍遮罩 (漸變時間拉長至 1.5秒) -->
+    <div class="fixed inset-0 z-0 overflow-hidden">
+        <img id="bg-image" src="IMG_4245.jpg" alt="Memory Background" class="w-full h-full object-cover filter blur-[2.5px] brightness-75 scale-105 transition-all duration-[1500ms] ease-out opacity-0" onerror="handleBgError(this)">
+        <!-- 遮罩層：第一頁是明亮舒服的天空藍漸層，第二頁開始變成深邃微風藍 (1.5秒漸變) -->
+        <div id="bg-overlay" class="absolute inset-0 bg-gradient-to-b from-sky-200/50 via-sky-300/60 to-sky-400/80 transition-all duration-[1500ms] ease-out"></div>
+    </div>
+
+    <!-- 背景裝飾雲朵 -->
+    <div class="absolute top-10 left-[10%] w-32 md:w-48 opacity-25 pointer-events-none cloud-1 z-10">
+        <svg viewBox="0 0 100 100" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 60 a20 20 0 0 1 20 -20 a25 25 0 0 1 45 -10 a20 20 0 0 1 15 20 a15 15 0 0 1 -15 15 L25 75 a15 15 0 0 1 -5 -15 Z" />
+        </svg>
+    </div>
+    <div class="absolute bottom-20 right-[10%] w-40 md:w-56 opacity-20 pointer-events-none cloud-2 z-10">
+        <svg viewBox="0 0 100 100" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 60 a20 20 0 0 1 20 -20 a25 25 0 0 1 45 -10 a20 20 0 0 1 15 20 a15 15 0 0 1 -15 15 L25 75 a15 15 0 0 1 -5 -15 Z" />
+        </svg>
+    </div>
+
+    <!-- 頂部進度條與控制列 (增加 fade-in 動畫) -->
+    <header id="top-header" class="w-full max-w-xl mx-auto mb-4 z-20 flex flex-col space-y-2 transition-opacity duration-[1500ms] opacity-0">
+        <div class="flex items-center justify-end">
+            <!-- 音效開關 -->
+            <button onclick="toggleMute()" id="mute-btn" class="w-10 h-10 rounded-full bg-white/90 hover:bg-white text-sky-600 flex items-center justify-center transition shadow-md border border-white/50" title="開關音效">
+                <i data-lucide="volume-2" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <!-- 進度條條身 -->
+        <div class="w-full bg-sky-200/40 h-3 rounded-full overflow-hidden shadow-inner backdrop-blur-sm">
+            <div id="progress-bar" class="bg-sky-400 h-full transition-all duration-500 shadow-lg" style="width: 10%;"></div>
+        </div>
+    </header>
+
+    <!-- 核心互動卡片容器 (採用客製化 cinematic-transition) -->
+    <main class="flex-1 flex items-center justify-center z-20 py-4 w-full">
+        <div id="game-card" class="w-full max-w-lg bg-white/95 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-2xl shadow-sky-950/40 border border-white/60 flex flex-col justify-between min-h-[480px] relative cinematic-transition text-slate-800 mx-auto opacity-0 translate-y-4">
+            <!-- 卡片頂部操作區：回上一頁 -->
+            <div class="flex items-center justify-between w-full mb-2 min-h-[28px] z-30">
+                <div id="back-btn-container"></div>
+            </div>
+            
+            <!-- 關卡內容將由 JS 動態注入 -->
+            <div id="stage-content" class="flex-1 flex flex-col justify-center items-center w-full">
+                <!-- 動態載入處 -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 頁尾宣告 (保留空容器以維持動畫，但徹底移除了宣告文字) -->
+    <footer id="bottom-footer" class="w-full text-center py-4 z-20 transition-opacity duration-[1500ms] opacity-0">
+    </footer>
+
+    <!-- 全螢幕亮片 Canvas -->
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+
+    <!-- JavaScript 核心邏輯 -->
+    <script>
+        // --- 狀態管理 ---
+        let currentStage = 0;
+        let isMuted = false;
+        let audioCtx = null;
+        let stageProgress = [false, false, false]; // 用於追蹤每頁3個Icon的點擊狀況
+
+        // --- 全站關卡與情感文案資料集 (完美還原所有的 hint 提示文字) ---
+        const stageData = [
+            {
+                // 封面頁
+                isCover: true,
+                title: "Dear Priya",
+                desc: "總覺得好多話來不及跟妳說<br>所以我把想說的話都放在這裡了",
+                avatar: "DSC09949.jpg",
+                hint: "點擊帥哥進入"
+            },
+            {
+                // 第二面 (第一關)
+                text: "謝謝妳那天鼓起勇氣約我出來，還做了聖誕帽送我。我知道因為之前的經驗，導致妳對感情很謹慎，但即使這樣，妳依舊無所畏懼的去認識我。謝謝妳踏出了那一步，讓我們認識了彼此，也讓我有自信去喜歡一個人。",
+                icons: ["💩", "💩", "💩"],
+                hint: "踩完所有的牛糞進入下一頁",
+                effectType: "squish"
+            },
+            {
+                // 第三面 (第二關)
+                text: "回想起來，那些聊天聊到深夜的時光，雖然我們都像死要面子的被動星人，總是小心翼翼地試探、又常常假裝不在乎，但那些期待妳回覆的瞬間，是真的非常非常快樂。",
+                icons: ["👾", "👾", "👾"],
+                hint: "消滅這三個擋路的傲嬌被動外星人",
+                effectType: "zap"
+            },
+            {
+                // 第四面 (第三關)
+                text: "有時候我也會陷入瘋狂的小劇場。妳少回一個字，我的腦海就能生出無數種「我是不是說錯話」的猜測。雖然現在想起來覺得很蠢，但那也證明了當時，我是真的在乎妳。",
+                icons: ["🎈", "🎈", "🎈"],
+                hint: "戳破這三個胡思亂想的小劇場泡泡",
+                effectType: "pop"
+            },
+            {
+                // 第五面 (第四關)
+                text: "我們像兩顆軌道相近卻始終無法交會的星。也許那時候我們都差了一點勇氣，也許月老那天真的在摸魚喝下午茶。但沒關係，生活本來就不完美，能與妳並肩走過這一段，就已經足夠幸運了。",
+                icons: ["☕", "☕", "☕"],
+                hint: "喝完這三杯摸魚下午茶，笑看所有遺憾",
+                effectType: "drink"
+            },
+            {
+                // 第六面 (第五關)
+                text: "以前總是想著要找到標準答案，執著於我們到底是怎麼了、誰對誰錯。現在我明白，不用什麼事情都有標準解答，今天就用快樂的鑰匙解開這個心結，輕鬆愉快地往前走吧！",
+                icons: ["🔑", "🔑", "🔑"],
+                hint: "點擊三把魔法鑰匙，解開糾結的大鎖",
+                effectType: "unlock"
+            },
+            {
+                // 第七面 (第六關)
+                text: "其實我的對話框裡，常常躺著好多打完又刪掉的長篇草稿。那些來不及說完的話，現在都變成溫柔的微風。今天就把那些遺留的包袱刮掉，只留下我們相遇時最單純、最美好的回憶。",
+                icons: ["🎁", "🎁", "🎁"],
+                hint: "拆開這三個遺留下來的溫暖禮物盒",
+                effectType: "openGift"
+            },
+            {
+                // 第八面 (第七關)
+                text: "我們曾經試圖調整彼此的電波，卻總是忽遠忽近地錯過。這一次，不用再費力對焦了，讓我們把心跳和頻率都調回最舒適、最和諧的狀態，溫柔地跟那段手忙腳亂的時光道別。",
+                icons: ["⚡", "⚡", "⚡"],
+                hint: "消除這三個迷失方向的干擾電波",
+                effectType: "sizzle"
+            },
+            {
+                // 第九面 (第八關)
+                text: "所有的彆扭與遺憾，都在今天劃下最帥氣的句點囉！不管最後的結果是什麼，我都真心希望未來的妳能天天開心，繼續大步往前走，遇到那個能夠毫無保留對妳狂奔過去的人。",
+                icons: ["🍻", "🍻", "🍻"],
+                hint: "乾完這三杯，讓我們瀟灑乾杯！",
+                effectType: "cheersClink"
+            },
+            {
+                // 第十面 (最後的封底)
+                isFinal: true,
+                text: "這是給妳的最後一封信。雖然我們沒有寫下最完美的結局，但這段路有妳同行，真的很開心。點開最後的秘密，收下我最真摯、最輕盈的祝福吧！",
+                icons: ["💌", "💌", "💌"],
+                hint: "拆開最後三個祝福信封",
+                effectType: "openEnvelope"
+            }
+        ];
+
+        // --- 音效控制器 (Web Audio API) ---
+        function playSound(type) {
+            if (isMuted) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'beep') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, audioCtx.currentTime); 
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.1);
+                } else if (type === 'success') {
+                    const now = audioCtx.currentTime;
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); 
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); 
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); 
+                    osc.frequency.setValueAtTime(1046.50, now + 0.3); 
+                    
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start();
+                    osc.stop(now + 0.5);
+                } else if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'cheers') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch (e) {
+                console.log("Audio Context waiting:", e);
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('mute-btn');
+            if (isMuted) {
+                btn.innerHTML = `<i data-lucide="volume-x" class="w-5 h-5"></i>`;
+                btn.classList.add('text-rose-500', 'bg-rose-50');
+            } else {
+                btn.innerHTML = `<i data-lucide="volume-2" class="w-5 h-5"></i>`;
+                btn.classList.remove('text-rose-500', 'bg-rose-50');
+                playSound('beep');
+            }
+            lucide.createIcons();
+        }
+
+        // --- 電影級背景切換機制 ---
+        function updateBackground() {
+            const bgImg = document.getElementById('bg-image');
+            const bgOverlay = document.getElementById('bg-overlay');
+            
+            if (currentStage === 0) {
+                // 第一面 (封面)：原本純淨的天空藍/淡藍色舒服漸層
+                if (bgImg) {
+                    bgImg.classList.remove('opacity-100');
+                    bgImg.classList.add('opacity-0');
+                }
+                if (bgOverlay) {
+                    bgOverlay.className = "absolute inset-0 bg-gradient-to-b from-sky-200/50 via-sky-300/60 to-sky-400/80 transition-all duration-[1500ms] ease-out";
+                }
+            } else {
+                // 第二面開始：高質感模糊合照 (IMG_4245.jpg) + 深邃微雨藍遮罩
+                if (bgImg && bgImg.style.display !== 'none') {
+                    bgImg.classList.remove('opacity-0');
+                    bgImg.classList.add('opacity-100');
+                }
+                if (bgOverlay) {
+                    bgOverlay.className = "absolute inset-0 bg-gradient-to-b from-sky-900/65 via-sky-800/75 to-sky-950/90 backdrop-blur-[1px] transition-all duration-[1500ms] ease-out";
+                }
+            }
+        }
+
+        // --- 核心渲染機制 (包含 1.5 秒背景獨佔與緩慢淡入) ---
+        function renderStage() {
+            const data = stageData[currentStage];
+            const container = document.getElementById('stage-content');
+            const backBtnContainer = document.getElementById('back-btn-container');
+            const topHeader = document.getElementById('top-header');
+            const bottomFooter = document.getElementById('bottom-footer');
+            const card = document.getElementById('game-card');
+            
+            // 1. 立即切換背景圖片與遮罩顏色 (背景開始 1.5 秒轉場)
+            updateBackground();
+
+            // 重置本頁點擊狀態
+            stageProgress = [false, false, false];
+
+            // 2. 為了讓背景完全獨自停留，將卡片、頁首與頁尾徹底隱藏並向下移
+            card.classList.add('opacity-0', 'translate-y-8');
+            topHeader.classList.add('opacity-0');
+            bottomFooter.classList.add('opacity-0');
+
+            // 3. 設定延遲：第一頁(封面)不延遲快速開啟，第二頁起延遲 1.5 秒，讓背景圖獨佔 1.5 秒
+            const entranceDelay = (currentStage === 0) ? 200 : 1500;
+
+            setTimeout(() => {
+                // 更新頂部進度條
+                const percent = ((currentStage + 1) / stageData.length) * 100;
+                document.getElementById('progress-bar').style.width = `${percent}%`;
+
+                // 回上一頁按鈕：從第二面開始渲染
+                if (currentStage > 0) {
+                    backBtnContainer.innerHTML = `
+                        <button onclick="prevStep()" class="flex items-center space-x-1.5 text-sm font-bold text-sky-500 hover:text-sky-600 transition-all active:scale-95">
+                            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            <span>回上一頁</span>
+                        </button>
+                    `;
+                } else {
+                    backBtnContainer.innerHTML = '';
+                }
+
+                if (data.isCover) {
+                    // 封面頁渲染 (保留最下方提示文字)
+                    container.innerHTML = `
+                        <div class="text-center space-y-4 mb-6 w-full">
+                            <h2 class="text-4xl md:text-5xl font-black text-slate-800 tracking-tight leading-tight">${data.title}</h2>
+                            <p class="text-base md:text-lg text-slate-500 leading-relaxed max-w-sm mx-auto font-semibold">${data.desc}</p>
+                        </div>
+                        
+                        <div class="flex-1 w-full flex flex-col items-center justify-center space-y-4">
+                            <div id="plane-btn" onclick="triggerPlane()" class="w-40 h-40 bg-sky-100 rounded-full flex items-center justify-center shadow-xl shadow-sky-200/60 cursor-pointer hover:bg-sky-200 transition-all duration-300 transform hover:scale-105 active:scale-95 shake-hover overflow-hidden border-4 border-white relative">
+                                <img src="${data.avatar}" alt="Handsome Boy" class="w-full h-full object-cover z-10 relative" onerror="handleAvatarError(this)">
+                                <div class="absolute inset-0 bg-sky-200 flex flex-col items-center justify-center text-sky-600 font-black z-0">
+                                    <span class="text-5xl">👦</span>
+                                </div>
+                            </div>
+                            <p class="text-lg md:text-xl text-sky-500 font-extrabold animate-pulse tracking-wide">${data.hint}</p>
+                        </div>
+                    `;
+                } else if (data.isFinal) {
+                    // 第十頁 (最後的信，保留最下方提示文字)
+                    container.innerHTML = `
+                        <div id="final-card-wrapper" class="w-full flex flex-col items-center justify-center text-center space-y-6">
+                            <!-- 純文字部分 -->
+                            <p class="text-lg md:text-xl text-slate-700 leading-relaxed font-bold tracking-wide text-left">${data.text}</p>
+                            
+                            <!-- 3個信封互動 -->
+                            <div id="icon-group" class="flex justify-center space-x-6 py-4">
+                                ${data.icons.map((icon, idx) => `
+                                    <button onclick="clickStoryIcon(this, ${idx}, '${data.effectType}')" class="w-16 h-16 rounded-full bg-sky-50 hover:bg-sky-100 border border-sky-200 shadow-md flex items-center justify-center text-3xl transition duration-300 transform hover:scale-110 active:scale-90 select-none">
+                                        ${icon}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            
+                            <p id="icon-hint" class="text-sm md:text-base text-sky-500 font-extrabold animate-pulse tracking-wide">${data.hint}</p>
+                            
+                            <!-- 隱藏的信件內容，點擊信封後展開 -->
+                            <div id="letter-content" class="hidden bg-slate-50 border border-slate-100 rounded-2xl p-6 text-base text-slate-700 leading-relaxed text-left space-y-4 shadow-inner max-h-[280px] overflow-y-auto w-full transition-all duration-500 transform translate-y-4 opacity-0">
+                                <p class="font-bold text-sky-600 text-lg md:text-xl">嗨，Priya：</p>
+                                <p>
+                                    謝謝妳耐心地點到最後！希望剛剛這些有點蠢的小互動有讓妳笑一下。
+                                </p>
+                                <p>
+                                    以前我們有很多心結和話沒能好好講開，但現在想想，也許那些有點「沒說完的遺憾」，才是曖昧過程中最令人難忘的樣子。謝謝妳曾經願意走向我，也謝謝妳帶給我的所有美好回憶。
+                                </p>
+                                <p>
+                                    這個網站是我最後、最輕鬆有趣的道別信。祝妳未來的日子裡天天開心，大步往前走，遇到能毫無保留向妳飛奔過去的人。
+                                </p>
+                                <p class="text-right font-bold text-sky-600 mt-5">—— 優雅退場的我 筆 ✨</p>
+                                <div class="pt-5 border-t border-slate-200 flex justify-center">
+                                    <button onclick="finalConfetti()" class="bg-gradient-to-r from-sky-500 to-indigo-500 text-white text-base md:text-lg px-8 py-3 rounded-full font-black shadow hover:shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center space-x-2">
+                                        <span>👋 點此揮手告別（灑花！）</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // 第二面到第九面（保留最下方提示文字）
+                    container.innerHTML = `
+                        <div class="w-full flex flex-col items-center justify-center text-center space-y-8 py-4">
+                            <!-- 中間只有純文字，無標題 -->
+                            <p class="text-lg md:text-xl text-slate-700 leading-relaxed font-bold tracking-wide text-left">${data.text}</p>
+                            
+                            <!-- 三個互動 Icon -->
+                            <div class="flex justify-center space-x-6 py-2">
+                                ${data.icons.map((icon, idx) => `
+                                    <button onclick="clickStoryIcon(this, ${idx}, '${data.effectType}')" class="w-16 h-16 rounded-full bg-sky-50 hover:bg-sky-100 border border-sky-200 shadow-md flex items-center justify-center text-3xl transition duration-300 transform hover:scale-110 active:scale-90 select-none">
+                                        ${icon}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            
+                            <!-- 底部提示 -->
+                            <p class="text-sm md:text-base text-sky-500 font-extrabold animate-pulse tracking-wide">${data.hint}</p>
+                        </div>
+                    `;
+                }
+
+                // 4. 以電影感慢速（1.5秒漸變）將卡片緩緩升起，並讓進度條與頁尾淡入
+                card.classList.remove('opacity-0', 'translate-y-8');
+                topHeader.classList.remove('opacity-0');
+                bottomFooter.classList.remove('opacity-0');
+                
+                lucide.createIcons();
+            }, entranceDelay);
+        }
+
+        // --- 點擊 Icon 互動與自動下一頁邏輯 ---
+        function clickStoryIcon(element, index, effectType) {
+            if (stageProgress[index]) return; // 避免重複點擊
+            
+            stageProgress[index] = true;
+            
+            // 根據不同類型播放對應音效與點擊變形特效
+            if (effectType === 'squish') {
+                playSound('pop');
+                element.innerHTML = "💥";
+                element.className = "w-16 h-16 rounded-full bg-amber-50 border border-amber-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-90 rotate-12 opacity-85 select-none pointer-events-none";
+            } else if (effectType === 'zap') {
+                playSound('pop');
+                element.innerHTML = "✨";
+                element.className = "w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-90 -rotate-12 opacity-85 select-none pointer-events-none";
+            } else if (effectType === 'pop') {
+                playSound('pop');
+                element.innerHTML = "💥";
+                element.className = "w-16 h-16 rounded-full bg-rose-50 border border-rose-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-50 opacity-0 select-none pointer-events-none";
+            } else if (effectType === 'drink') {
+                playSound('pop');
+                element.innerHTML = "💨";
+                element.className = "w-16 h-16 rounded-full bg-slate-50 border border-slate-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-95 opacity-50 select-none pointer-events-none";
+            } else if (effectType === 'unlock') {
+                playSound('cheers');
+                element.innerHTML = "🔓";
+                element.className = "w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-100 rotate-45 opacity-90 select-none pointer-events-none";
+            } else if (effectType === 'openGift') {
+                playSound('cheers');
+                element.innerHTML = "🎉";
+                element.className = "w-16 h-16 rounded-full bg-yellow-50 border border-yellow-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-110 opacity-100 select-none pointer-events-none animate-bounce";
+            } else if (effectType === 'sizzle') {
+                playSound('pop');
+                element.innerHTML = "💖";
+                element.className = "w-16 h-16 rounded-full bg-rose-50 border border-rose-100 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-100 opacity-95 select-none pointer-events-none";
+            } else if (effectType === 'cheersClink') {
+                playSound('cheers');
+                element.innerHTML = "🥂";
+                element.className = "w-16 h-16 rounded-full bg-amber-50 border border-amber-200 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-105 rotate-12 opacity-95 select-none pointer-events-none";
+            } else if (effectType === 'openEnvelope') {
+                playSound('pop');
+                element.innerHTML = "✉️";
+                element.className = "w-16 h-16 rounded-full bg-sky-50 border border-sky-100 shadow-inner flex items-center justify-center text-3xl transition duration-300 transform scale-100 opacity-90 select-none pointer-events-none";
+            }
+
+            // 檢查三個是否都踩完
+            if (stageProgress.every(status => status === true)) {
+                playSound('success');
+                
+                // 最後一關不自動跳，而是展開信封
+                if (currentStage === stageData.length - 1) {
+                    setTimeout(() => {
+                        const iconGroup = document.getElementById('icon-group');
+                        if (iconGroup) iconGroup.classList.add('hidden');
+                        
+                        const iconHint = document.getElementById('icon-hint');
+                        if (iconHint) iconHint.classList.add('hidden');
+                        
+                        const letter = document.getElementById('letter-content');
+                        if (letter) {
+                            letter.classList.remove('hidden');
+                            setTimeout(() => {
+                                letter.classList.remove('translate-y-4', 'opacity-0');
+                                letter.classList.add('translate-y-0', 'opacity-100');
+                            }, 50);
+                        }
+                    }, 800);
+                } else {
+                    // 一般關卡踩完 1.2 秒後，卡片自動淡出並前往下一頁
+                    setTimeout(() => {
+                        nextStep();
+                    }, 1200);
+                }
+            }
+        }
+
+        // [封面頁] 點擊帥哥進入
+        function triggerPlane() {
+            playSound('pop');
+            const btn = document.getElementById('plane-btn');
+            btn.classList.add('scale-95', 'rotate-6', 'opacity-90');
+            
+            // 先讓第一面卡片慢速淡出
+            const card = document.getElementById('game-card');
+            card.classList.add('opacity-0', 'translate-y-8');
+            
+            setTimeout(() => {
+                nextStepDirect(); 
+            }, 1000);
+        }
+
+        function nextStep() {
+            if (currentStage < stageData.length - 1) {
+                // 卡片與周邊元素先慢速淡出，隨後進行關卡轉換
+                const card = document.getElementById('game-card');
+                const topHeader = document.getElementById('top-header');
+                const bottomFooter = document.getElementById('bottom-footer');
+                
+                card.classList.add('opacity-0', 'translate-y-8');
+                topHeader.classList.add('opacity-0');
+                bottomFooter.classList.add('opacity-0');
+                
+                setTimeout(() => {
+                    currentStage++;
+                    renderStage();
+                }, 1200); // 等待淡出動畫完全結束後再轉場背景
+            }
+        }
+
+        function nextStepDirect() {
+            currentStage++;
+            renderStage();
+        }
+
+        function prevStep() {
+            if (currentStage > 0) {
+                playSound('pop');
+                const card = document.getElementById('game-card');
+                const topHeader = document.getElementById('top-header');
+                const bottomFooter = document.getElementById('bottom-footer');
+                
+                card.classList.add('opacity-0', 'translate-y-8');
+                topHeader.classList.add('opacity-0');
+                bottomFooter.classList.add('opacity-0');
+                
+                setTimeout(() => {
+                    currentStage--;
+                    renderStage();
+                }, 1200);
+            }
+        }
+
+        // --- 錯誤處理 (防阻擋安全機制) ---
+        function handleBgError(img) {
+            console.log("本地背景圖 [IMG_4245.jpg] 暫未載入。請下載 HTML 並與照片放在同一資料夾中執行。");
+            img.style.display = 'none';
+        }
+
+        // 本地找不到頭像時優雅隱藏，完全不載入任何外界路人照片
+        function handleAvatarError(img) {
+            console.log("本地頭像 [DSC09949.jpg] 暫未載入。請下載 HTML 並與照片放在同一資料夾中執行。");
+            img.style.display = 'none';
+        }
+
+        // --- 揮手灑花彩帶效果 ---
+        function finalConfetti() {
+            playSound('success');
+            const canvas = document.getElementById('confetti-canvas');
+            canvas.classList.remove('hidden');
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            const colors = ['#f43f5e', '#38bdf8', '#fbbf24', '#34d399', '#a78bfa'];
+
+            for (let i = 0; i < 120; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 6 + 4,
+                    d: Math.random() * canvas.height,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.random() * 10 - 5,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+                    tiltAngle: 0
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, index) => {
+                    p.tiltAngle += p.tiltAngleIncremental;
+                    p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                    p.x += Math.sin(p.tiltAngle);
+                    p.tilt = Math.sin(p.tiltAngle - index / 3) * 15;
+
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                    ctx.stroke();
+                });
+
+                particles = particles.filter(p => p.y < canvas.height);
+                if (particles.length > 0) {
+                    requestAnimationFrame(draw);
+                } else {
+                    canvas.classList.add('hidden');
+                }
+            }
+
+            draw();
+        }
+
+        // --- 視窗載入與初始化 ---
+        window.onload = function() {
+            lucide.createIcons();
+            renderStage();
+        };
+    </script>
+</body>
+</html>
